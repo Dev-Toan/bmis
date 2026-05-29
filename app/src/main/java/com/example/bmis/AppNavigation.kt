@@ -22,10 +22,16 @@ import com.example.bmis.ui.screens.login.LoginScreen
 import com.example.bmis.ui.screens.password.PasswordScreen
 import com.example.bmis.ui.screens.News_detail.NewsDetailScreen
 import com.example.bmis.ui.screens.services.ServicesScreen
-import com.example.bmis.ui.screens.services.PaidServicesScreen
+import com.example.bmis.ui.screens.ChiTietDanhSachDangKy.PaidServicesScreen
 import com.example.bmis.ui.components.MainBottomBar
+import com.example.bmis.ui.screens.GioHang.CartScreen
 import com.example.bmis.utils.RetrofitClient
 import androidx.compose.foundation.layout.WindowInsets
+import com.example.bmis.ui.screens.ChiTietDichVu.ServiceDetailScreen
+import com.example.bmis.ui.screens.GoiDichVuTienIch.PackageDetailScreen
+import com.example.bmis.data.models.RegistrationOrderStatus
+import com.example.bmis.ui.screens.ThongTinDangKy.RegistrationDetailScreen
+import com.example.bmis.ui.screens.services.StatusType
 
 @Composable
 fun AppNavigation() {
@@ -44,7 +50,8 @@ fun AppNavigation() {
             currentRoute == "wallet" ||
             currentRoute == "profile" ||
             currentRoute == "services" ||
-            currentRoute == "DaThanhToan"
+            currentRoute == "DaThanhToan" ||
+            currentRoute?.startsWith("service_detail") == true
 
     Scaffold(
         bottomBar = {
@@ -65,6 +72,8 @@ fun AppNavigation() {
                     )
                 }
 
+
+
                 composable(
                     route = "registration_detail/{statusType}",
                     arguments = listOf(
@@ -77,7 +86,18 @@ fun AppNavigation() {
 
                     PaidServicesScreen(
                         statusType = statusType,
-                        onBackClick = { navController.popBackStack() }
+                        onBackClick = { navController.popBackStack() },
+                        onCartClick = { navController.navigate("cart") },
+                        onItemClick = { invoice, status ->
+                            val registrationStatus = when (status) {
+                                com.example.bmis.ui.screens.services.StatusType.SUCCESS -> RegistrationOrderStatus.PAID
+                                com.example.bmis.ui.screens.services.StatusType.WARNING -> RegistrationOrderStatus.PENDING
+                                com.example.bmis.ui.screens.services.StatusType.ERROR -> RegistrationOrderStatus.CANCELLED
+                            }
+                            navController.navigate(
+                                "registration_detail_screen/${invoice.id}/${registrationStatus.name}"
+                            )
+                        }
                     )
                 }
 
@@ -113,12 +133,27 @@ fun AppNavigation() {
                     HomeScreen(
                         userName = userName,
                         onNewsClick = { post ->
-                            val encodedTitle = Uri.encode(post.title)
-                            val encodedContent = Uri.encode(post.body)
-                            navController.navigate("news_detail/$encodedTitle/$encodedContent")
+                            navController.navigate("news_detail/${post.id}")
                         },
                         onServicesClick = {
                             navController.navigate("services")
+                        }
+                    )
+                }
+
+                composable(
+                    route = "service_detail/{serviceId}",
+                    arguments = listOf(
+                        navArgument("serviceId") { type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val serviceId = backStackEntry.arguments?.getString("serviceId") ?: "1"
+                    ServiceDetailScreen(
+                        serviceId = serviceId,
+                        onBackClick = { navController.popBackStack() },
+                        onCartClick = { navController.navigate("cart") },
+                        onViewPackageClick = { pkg ->
+                            navController.navigate("package_detail/$serviceId/${pkg.id}")
                         }
                     )
                 }
@@ -127,28 +162,75 @@ fun AppNavigation() {
                     ServicesScreen(
                         initialTabIndex = 0,
                         onBackClick = { navController.popBackStack() },
+                        onCartClick = { navController.navigate("cart") },
                         onStatusClick = { status ->
                             navController.navigate("registration_detail/${status.statusType.name}")
+                        },
+                        onServiceClick = { service ->
+                            navController.navigate("service_detail/${service.id}")
                         }
                     )
                 }
 
-                composable("paid_services") {
-                    PaidServicesScreen(onBackClick = { navController.popBackStack() })
+                composable("cart") {
+                    CartScreen(
+                        onBackClick = { navController.popBackStack() },
+                        onRegisterClick = { /* Xử lý đăng ký */ }
+                    )
                 }
 
                 composable(
-                    route = "news_detail/{newsTitle}/{newsContent}",
+                    route = "registration_detail_screen/{registrationId}/{status}",
                     arguments = listOf(
-                        navArgument("newsTitle") { type = NavType.StringType },
-                        navArgument("newsContent") { type = NavType.StringType }
+                        navArgument("registrationId") { type = NavType.StringType },
+                        navArgument("status") { type = NavType.StringType }
                     )
                 ) { backStackEntry ->
-                    val newsTitle = backStackEntry.arguments?.getString("newsTitle") ?: ""
-                    val newsContent = backStackEntry.arguments?.getString("newsContent") ?: ""
+                    val registrationId = backStackEntry.arguments?.getString("registrationId") ?: "0"
+                    val statusStr = backStackEntry.arguments?.getString("status") ?: "PENDING"
+                    val status = RegistrationOrderStatus.valueOf(statusStr)
+
+                    RegistrationDetailScreen(
+                        registrationId = registrationId,
+                        status = status,
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+
+                composable("paid_services") {
+                    PaidServicesScreen(
+                        onBackClick = { navController.popBackStack() },
+                        onCartClick = { navController.navigate("cart") }
+                    )
+                }
+
+                composable(
+                    route = "package_detail/{serviceId}/{packageId}",
+                    arguments = listOf(
+                        navArgument("serviceId") { type = NavType.StringType },
+                        navArgument("packageId") { type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val serviceId = backStackEntry.arguments?.getString("serviceId") ?: "1"
+                    val packageId = backStackEntry.arguments?.getString("packageId") ?: "1"
+                    PackageDetailScreen(
+                        serviceId = serviceId,
+                        packageId = packageId,
+                        onBackClick = { navController.popBackStack() },
+                        onCartClick = { navController.navigate("cart") },
+                        onAddToCartClick = { navController.navigate("cart") }
+                    )
+                }
+
+                composable(
+                    route = "news_detail/{postId}",
+                    arguments = listOf(
+                        navArgument("postId") { type = NavType.IntType }
+                    )
+                ) { backStackEntry ->
+                    val postId = backStackEntry.arguments?.getInt("postId") ?: 0
                     NewsDetailScreen(
-                        title = newsTitle,
-                        content = newsContent,
+                        postId = postId,
                         onBack = { navController.popBackStack() }
                     )
                 }

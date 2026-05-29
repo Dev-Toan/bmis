@@ -6,5 +6,6 @@ data class ItemsServices(
     val servicesName: String,
     val registrationDate: String,
     val paymentDate: String,
-    val totalAmount: String
+    val totalAmount: String,
+    val apartment: String = "CH002"
 )

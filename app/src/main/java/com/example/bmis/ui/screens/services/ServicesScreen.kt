@@ -1,6 +1,7 @@
 package com.example.bmis.ui.screens.services
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,8 +12,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +28,7 @@ import com.example.bmis.ui.theme.BackgroundColor
 import com.example.bmis.ui.theme.OrangeHighlight
 import com.example.bmis.ui.theme.PrimaryBlue
 import com.example.bmis.ui.theme.TextGray
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 // Data class cho Tab 1 (Danh sách dịch vụ)
@@ -57,23 +59,16 @@ fun ServicesScreen(
     initialTabIndex: Int = 0,
     onBackClick: () -> Unit = {},
     onCartClick: () -> Unit = {},
-    onStatusClick: (RegistrationStatus) -> Unit = {}
+    onStatusClick: (RegistrationStatus) -> Unit = {},
+    onServiceClick: (UtilityService) -> Unit = {},
+    viewModel: ServicesViewModel = viewModel(factory = ServicesViewModel.Factory)
 ) {
-    var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) } // Mặc định mở Tab 0 (Danh sách dịch vụ)
+    val uiState by viewModel.uiState.collectAsState()
+    var selectedTab by rememberSaveable { mutableIntStateOf(initialTabIndex) }
+
     val tabs = listOf("Danh sách dịch vụ", "Danh sách đăng ký")
-
-    // Dữ liệu giả lập Tab 1
-    val sampleServices = listOf(
-        UtilityService(1, "Dịch vụ GYM", "Cung cấp dịch vụ GYM", 250, Icons.Default.FitnessCenter, PrimaryBlue),
-        UtilityService(2, "Dịch vụ Bơi lội", "Cung cấp dịch vụ Bơi lội", 250, Icons.Default.Pool, PrimaryBlue)
-    )
-
-    // Dữ liệu giả lập Tab 2 (Đúng theo UI mới gửi)
-    val sampleStatuses = listOf(
-        RegistrationStatus(1, "Đã thanh toán", "2 dịch vụ tiện ích", StatusType.SUCCESS),
-        RegistrationStatus(2, "Chưa thanh toán", "3 dịch vụ tiện ích", StatusType.WARNING),
-        RegistrationStatus(3, "Đã hủy", "2 dịch vụ tiện ích", StatusType.ERROR)
-    )
+    val services = uiState.services
+    val statuses = uiState.statuses
 
     Scaffold(
         topBar = {
@@ -89,7 +84,7 @@ fun ServicesScreen(
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Cart", tint = TextGray)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         },
         containerColor = BackgroundColor
@@ -99,43 +94,54 @@ fun ServicesScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Tab Row
-            TabRow(
-                selectedTabIndex = selectedTabIndex,
-                containerColor = Color.White,
-                contentColor = PrimaryBlue,
-                indicator = { tabPositions ->
-                    TabRowDefaults.SecondaryIndicator(
-                        Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                        color = OrangeHighlight
-                    )
-                }
+            // Tab header tự vẽ để tránh phụ thuộc API TabRow đang deprecated/không khớp version
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = {
-                            Text(
-                                text = title,
-                                fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
-                                color = if (selectedTabIndex == index) PrimaryBlue else TextGray,
-                                fontSize = 14.sp
-                            )
-                        }
-                    )
+                    val isSelected = selectedTab == index
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { selectedTab = index }
+                            .padding(vertical = 12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = title,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isSelected) PrimaryBlue else TextGray,
+                            fontSize = 14.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .height(3.dp)
+                                .fillMaxWidth(0.7f)
+                                .background(
+                                    color = if (isSelected) OrangeHighlight else Color.Transparent,
+                                    shape = RoundedCornerShape(999.dp)
+                                )
+                        )
+                    }
                 }
             }
 
             // Xử lý hiển thị nội dung theo từng Tab
-            when (selectedTabIndex) {
+            when (selectedTab) {
                 0 -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(sampleServices) { service ->
-                            ServiceItemCard(service = service)
+                        items(services) { service ->
+                            ServiceItemCard(service = service, onClick = {
+                                viewModel.onServiceClicked(service)
+                                onServiceClick(service)
+                            })
                         }
                     }
                 }
@@ -144,8 +150,11 @@ fun ServicesScreen(
                         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(sampleStatuses) { status ->
-                            StatusItemCard(status = status, onClick = { onStatusClick(status) })
+                        items(statuses) { status ->
+                            StatusItemCard(status = status, onClick = {
+                                viewModel.onStatusClicked(status)
+                                onStatusClick(status)
+                            })
                         }
                     }
                 }
@@ -245,8 +254,9 @@ private fun StatusItemCard(
 
 // Giữ nguyên Card cũ của Tab 1 ở dưới nếu bạn cần...
 @Composable
-private fun ServiceItemCard(service: UtilityService) {
+private fun ServiceItemCard(service: UtilityService, onClick: () -> Unit) {
     Card(
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -319,7 +329,7 @@ private fun ServiceItemCard(service: UtilityService) {
 fun ServicesScreenRegistrationTabPreview() {
     BMISTheme {
         // Preview cho cấu hình mặc định hiện tại của bạn (selectedTabIndex = 1)
-        ServicesScreen(initialTabIndex = 1)
+        ServicesScreen(initialTabIndex = 1, viewModel = ServicesViewModel.Factory.create(ServicesViewModel::class.java))
     }
 }
 
@@ -327,6 +337,6 @@ fun ServicesScreenRegistrationTabPreview() {
 @Composable
 fun ServicesScreenListTabPreview() {
     BMISTheme {
-        ServicesScreen(initialTabIndex = 0)
+        ServicesScreen(initialTabIndex = 0, viewModel = ServicesViewModel.Factory.create(ServicesViewModel::class.java))
     }
 }

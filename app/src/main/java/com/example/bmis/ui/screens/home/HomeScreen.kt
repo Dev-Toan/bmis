@@ -59,7 +59,19 @@ fun HomeScreen(
             HeaderSection(userName = userName)
             BannerSection()
             MenuGridSection(onServicesClick = onServicesClick)
-            NewsSection(posts = uiState.newsList, onNewsClick = onNewsClick)
+
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = PrimaryBlue)
+                }
+            } else {
+                NewsSection(posts = uiState.newsList, onNewsClick = onNewsClick)
+            }
 
             if (uiState.errorMessage != null) {
                 Text(
@@ -263,6 +275,7 @@ private fun NewsSection(posts: List<Post> = emptyList(), onNewsClick: (Post) -> 
         posts.take(10).forEach { post ->
             NewsCard(
                 title = post.title,
+                description = post.body,
                 imageRes = R.drawable.chuachay,
                 onClick = { onNewsClick(post) }
             )
@@ -272,7 +285,7 @@ private fun NewsSection(posts: List<Post> = emptyList(), onNewsClick: (Post) -> 
 }
 
 @Composable
-private fun NewsCard(title: String, imageRes: Int, onClick: () -> Unit) {
+private fun NewsCard(title: String, description: String, imageRes: Int, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -301,9 +314,11 @@ private fun NewsCard(title: String, imageRes: Int, onClick: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "10/09/2025  03:05:06",
+                    text = description,
                     fontSize = 12.sp,
-                    color = TextGray
+                    color = TextGray,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

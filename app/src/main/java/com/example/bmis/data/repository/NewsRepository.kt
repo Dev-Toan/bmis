@@ -1,8 +1,8 @@
 package com.example.bmis.data.repository
 
 import com.example.bmis.data.api.ApiService
+import com.example.bmis.data.models.NewsArticleDetail
 import com.example.bmis.data.models.Post
-import kotlin.collections.find
 
 class NewsRepository(private val apiService: ApiService) {
 
@@ -23,5 +23,16 @@ class NewsRepository(private val apiService: ApiService) {
             e.printStackTrace()
             null
         }
+    }
+
+    suspend fun getNewsArticle(postId: Int): NewsArticleDetail? {
+        val post = getPostById(postId) ?: return null
+        return NewsArticleDetail(
+            id = post.id,
+            title = post.title,
+            content = post.body,
+            publishedAt = "10/09/2025  03:05:06",
+            imageResName = "chuachay"
+        )
     }
 }
