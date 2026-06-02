@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "940788743526",
+    "project_id": "bmis-26b20",
+    "storage_bucket": "bmis-26b20.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:940788743526:android:c4387a0abbd0ef86d39ca7",
+        "android_client_info": {
+          "package_name": "com.example.bmis"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeGEW1fiVt5QgC9Tv7x78f0pRE98oWqbg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
