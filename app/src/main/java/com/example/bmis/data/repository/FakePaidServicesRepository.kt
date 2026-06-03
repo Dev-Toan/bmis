@@ -6,73 +6,73 @@ import com.example.bmis.data.models.PaidServicesFilterOptions
 class FakePaidServicesRepository : PaidServicesRepository {
 
     override suspend fun getInvoices(statusType: String): List<ItemsServices> = when (statusType) {
-        "WARNING" -> listOf(
+        "WARNING" -> listOf( // Chưa thanh toán
             ItemsServices(
-                id = "0",
+                id = "101",
                 registrationCode = "DK00000",
-                servicesName = "Dịch vụ GYM, Dịch vụ bơi lội",
+                servicesName = "Sửa chữa điện lạnh",
                 registrationDate = "21/09/2019",
                 paymentDate = "",
-                totalAmount = "810.000 VNĐ",
-                apartment = "CH002"
+                totalAmount = "500.000 VNĐ",
+                apartment = "1307"
             ),
             ItemsServices(
-                id = "1",
-                registrationCode = "DK00001",
-                servicesName = "Dịch vụ GYM",
-                registrationDate = "15/09/2025",
+                id = "102",
+                registrationCode = "DK00000",
+                servicesName = "Sửa chữa điện lạnh",
+                registrationDate = "21/09/2019",
                 paymentDate = "",
-                totalAmount = "750.000 VNĐ",
-                apartment = "CH003"
-            )
-        )
-        "ERROR" -> listOf(
-            ItemsServices(
-                id = "2",
-                registrationCode = "DK00002",
-                servicesName = "Dịch vụ Bơi lội",
-                registrationDate = "10/08/2025",
-                paymentDate = "12/08/2025",
-                totalAmount = "750.000 VNĐ",
-                apartment = "CH004"
-            )
-        )
-        else -> listOf(
-            ItemsServices(
-                id = "1",
-                registrationCode = "DK-20260101-001",
-                servicesName = "Dịch vụ GYM",
-                registrationDate = "01/09/2025",
-                paymentDate = "05/09/2025",
-                totalAmount = "750.000 VNĐ",
-                apartment = "CH002"
+                totalAmount = "500.000 VNĐ",
+                apartment = "1307"
             ),
             ItemsServices(
-                id = "2",
-                registrationCode = "DK-20260102-002",
-                servicesName = "Dịch vụ Bơi lội",
-                registrationDate = "02/09/2025",
-                paymentDate = "06/09/2025",
-                totalAmount = "750.000 VNĐ",
-                apartment = "CH003"
+                id = "103",
+                registrationCode = "DK00000",
+                servicesName = "Sửa chữa điện lạnh",
+                registrationDate = "21/09/2019",
+                paymentDate = "",
+                totalAmount = "500.000 VNĐ",
+                apartment = "1307"
+            )
+        )
+        "ERROR" -> listOf( // Đã hủy
+            ItemsServices(
+                id = "201",
+                registrationCode = "DK00000",
+                servicesName = "Sửa chữa điện lạnh",
+                registrationDate = "21/09/2019",
+                paymentDate = "",
+                totalAmount = "500.000 VNĐ",
+                apartment = "1307"
             ),
             ItemsServices(
-                id = "3",
-                registrationCode = "DK-20260103-003",
-                servicesName = "Dịch vụ GYM + Bơi lội",
-                registrationDate = "03/09/2025",
-                paymentDate = "07/09/2025",
-                totalAmount = "1.500.000 VNĐ",
-                apartment = "CH002"
+                id = "202",
+                registrationCode = "DK00000",
+                servicesName = "Sửa chữa điện lạnh",
+                registrationDate = "21/09/2019",
+                paymentDate = "",
+                totalAmount = "500.000 VNĐ",
+                apartment = "1307"
+            )
+        )
+        else -> listOf( // Đã thanh toán (SUCCESS)
+            ItemsServices(
+                id = "301",
+                registrationCode = "DK00000",
+                servicesName = "Sửa chữa điện lạnh",
+                registrationDate = "21/09/2019",
+                paymentDate = "21/09/2019",
+                totalAmount = "500.000 VNĐ",
+                apartment = "1307"
             )
         )
     }
 
     override suspend fun getFilterOptions(): PaidServicesFilterOptions = PaidServicesFilterOptions(
-        serviceNames = listOf("Dịch vụ GYM", "Dịch vụ Bơi lội"),
-        apartmentOptions = listOf("CH002", "CH003", "CH004", "CH005", "CH006"),
-        defaultTime = "Tháng 9 - 2025",
-        defaultServices = setOf("Dịch vụ GYM"),
-        defaultApartment = "CH002"
+        serviceNames = listOf("Sửa chữa điện lạnh", "Dịch vụ GYM", "Dịch vụ Bơi lội"),
+        apartmentOptions = listOf("1307", "CH002", "CH003", "CH004"),
+        defaultTime = null,
+        defaultServices = emptySet(),
+        defaultApartment = null
     )
 }

@@ -18,13 +18,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         Log.d(TAG, "New token: $token")
-        // TODO: Gửi token này lên server của bạn để lưu trữ
-        sendRegistrationToServer(token)
     }
 
-    private fun sendRegistrationToServer(token: String?) {
-        // Logic gửi token lên backend
-    }
+
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         remoteMessage.notification?.let { notification ->

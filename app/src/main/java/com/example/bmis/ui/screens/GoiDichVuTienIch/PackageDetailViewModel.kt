@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.bmis.data.models.PackageDetail
-import com.example.bmis.data.repository.FakeServicesRepository
-import com.example.bmis.data.repository.ServicesRepository
+import com.example.bmis.data.repository.FakeUtilityRepository
+import com.example.bmis.data.repository.UtilityRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +20,7 @@ data class PackageDetailUiState(
 )
 
 class PackageDetailViewModel(
-    private val repository: ServicesRepository,
+    private val repository: UtilityRepository,
     private val serviceId: String,
     private val packageId: String
 ) : ViewModel() {
@@ -73,7 +73,7 @@ class PackageDetailViewModel(
         fun provideFactory(
             serviceId: String,
             packageId: String,
-            repository: ServicesRepository = FakeServicesRepository()
+            repository: UtilityRepository = FakeUtilityRepository()
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {

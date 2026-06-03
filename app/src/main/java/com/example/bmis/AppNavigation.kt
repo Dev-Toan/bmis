@@ -30,6 +30,11 @@ import androidx.compose.foundation.layout.WindowInsets
 import com.example.bmis.ui.screens.ChiTietDichVu.ServiceDetailScreen
 import com.example.bmis.ui.screens.GoiDichVuTienIch.PackageDetailScreen
 import com.example.bmis.data.models.RegistrationOrderStatus
+import com.example.bmis.ui.screens.LuongSuaChua.ChiTietDichVuSuaChuaDangKy.ChiTietDichVuSuaChuaScreen
+import com.example.bmis.ui.screens.LuongSuaChua.DangKyDichVu.DangKyDichVuScreen
+import com.example.bmis.ui.screens.LuongSuaChua.DichVuSuaChua.DichVuSuaChuaScreen
+import com.example.bmis.ui.screens.LuongSuaChua.ThongTinChiTietDangKy.ThongTinChiTietScreen
+import com.example.bmis.ui.screens.LuongSuaChua.ThongTinDichVu.ThongTinDichVuScreen
 import com.example.bmis.ui.screens.ThongTinDangKy.RegistrationDetailScreen
 import com.example.bmis.ui.screens.services.StatusType
 
@@ -137,7 +142,8 @@ fun AppNavigation() {
                         },
                         onServicesClick = {
                             navController.navigate("services")
-                        }
+                        },
+                        onRepairClick = {navController.navigate("repair_services")}
                     )
                 }
 
@@ -234,6 +240,84 @@ fun AppNavigation() {
                         onBack = { navController.popBackStack() }
                     )
                 }
+
+             composable("repair_services"){
+                 DichVuSuaChuaScreen(
+                     onBackClick = { navController.popBackStack() },
+                     onCartClick = { navController.navigate("cart") },
+                     onStatusClick = { statusRequest ->
+                         navController.navigate("repair_detail_list/${statusRequest.status.name}")
+                     },
+                     onServiceClick = { service ->
+                         if (service.id == 1) { // Sửa chữa Điện lạnh
+                             navController.navigate("repair_service_info")
+                         }
+                     }
+                 )
+             }
+
+             composable("repair_service_info") {
+                 ThongTinDichVuScreen(
+                     onBackClick = { navController.popBackStack() },
+                     onRegisterClick = {
+                         navController.navigate("repair_registration_form")
+                     }
+                 )
+             }
+
+             composable("repair_registration_form") {
+                 DangKyDichVuScreen(
+                     onBackClick = { navController.popBackStack() },
+                     onRegisterSuccess = {
+                         navController.navigate("repair_services") {
+                             popUpTo("repair_services") { inclusive = true }
+                         }
+                     }
+                 )
+             }
+
+
+                composable(
+                    route = "repair_registration_info/{registrationId}/{status}",
+                    arguments = listOf(
+                        navArgument("registrationId") { type = NavType.StringType },
+                        navArgument("status") { type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val registrationId = backStackEntry.arguments?.getString("registrationId") ?: "DK0001"
+                    val statusStr = backStackEntry.arguments?.getString("status") ?: "PENDING"
+
+                    // Chuyển String từ URL về kiểu Enum RepairStatus
+                    val status = com.example.bmis.data.models.RepairStatus.valueOf(statusStr)
+
+                    ThongTinChiTietScreen(
+                        registrationId = registrationId,
+                        status = status,
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+
+
+                composable("repair_detail_list/{statusName}") { backStackEntry ->
+                    val statusName = backStackEntry.arguments?.getString("statusName") ?: "PENDING"
+                    
+
+                    val status = when (statusName) {
+                        "RECEIVED" -> com.example.bmis.ui.screens.services.StatusType.WARNING
+                        "PROCESSED" -> com.example.bmis.ui.screens.services.StatusType.SUCCESS
+                        else -> com.example.bmis.ui.screens.services.StatusType.ERROR
+                    }
+
+                    ChiTietDichVuSuaChuaScreen(
+                        statusType = status,
+                        onBackClick = { navController.popBackStack() },
+                        onCartClick = { navController.navigate("cart") },
+                        onItemClick = { invoice, _ ->
+                            navController.navigate("repair_registration_info/${invoice.registrationCode}/$statusName")
+                        }
+                    )
+                }
+
             }
         }
     }

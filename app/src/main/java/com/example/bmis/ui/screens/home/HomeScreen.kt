@@ -38,6 +38,7 @@ fun HomeScreen(
     userName: String = "",
     onNewsClick: (Post) -> Unit = {},
     onServicesClick: () -> Unit = {},
+    onRepairClick: () -> Unit = {},
     homeViewModel: HomeViewModel? = null,
     previewUiState: HomeUiState? = null
 ) {
@@ -58,7 +59,10 @@ fun HomeScreen(
         ) {
             HeaderSection(userName = userName)
             BannerSection()
-            MenuGridSection(onServicesClick = onServicesClick)
+            MenuGridSection(
+                onServicesClick = onServicesClick,
+                onRepairClick = onRepairClick
+            )
 
             if (uiState.isLoading) {
                 Box(

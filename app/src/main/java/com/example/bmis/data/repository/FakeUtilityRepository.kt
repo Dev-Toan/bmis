@@ -6,13 +6,12 @@ import com.example.bmis.ui.screens.services.StatusType
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Pool
-import androidx.compose.ui.graphics.Color
 import com.example.bmis.ui.theme.PrimaryBlue
 import com.example.bmis.data.models.PackageDetail
 import com.example.bmis.data.models.ServiceDetailInfo
 import com.example.bmis.data.models.ServicePackage
 
-class FakeServicesRepository : ServicesRepository {
+class FakeUtilityRepository : UtilityRepository {
     override suspend fun getServices(): List<UtilityService> = listOf(
         UtilityService(1, "Dịch vụ GYM", "Cung cấp dịch vụ GYM", 250, Icons.Default.FitnessCenter, PrimaryBlue),
         UtilityService(2, "Dịch vụ Bơi lội", "Cung cấp dịch vụ Bơi lội", 250, Icons.Default.Pool, PrimaryBlue)
