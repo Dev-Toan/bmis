@@ -39,6 +39,7 @@ fun HomeScreen(
     onNewsClick: (Post) -> Unit = {},
     onServicesClick: () -> Unit = {},
     onRepairClick: () -> Unit = {},
+    onFeedbackClick: () -> Unit = {},
     homeViewModel: HomeViewModel? = null,
     previewUiState: HomeUiState? = null
 ) {
@@ -61,7 +62,8 @@ fun HomeScreen(
             BannerSection()
             MenuGridSection(
                 onServicesClick = onServicesClick,
-                onRepairClick = onRepairClick
+                onRepairClick = onRepairClick,
+                onFeedbackClick = onFeedbackClick
             )
 
             if (uiState.isLoading) {

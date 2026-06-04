@@ -30,13 +30,16 @@ import androidx.compose.foundation.layout.WindowInsets
 import com.example.bmis.ui.screens.ChiTietDichVu.ServiceDetailScreen
 import com.example.bmis.ui.screens.GoiDichVuTienIch.PackageDetailScreen
 import com.example.bmis.data.models.RegistrationOrderStatus
+import com.example.bmis.ui.screens.LuongDongGopYKien.ChiTietYKien.ChiTietYKienScreen
+import com.example.bmis.ui.screens.LuongDongGopYKien.DanhSachYKien.DanhSachYKienScreen
+import com.example.bmis.ui.screens.LuongDongGopYKien.TaoYKienMoi.TaoYKienMoiScreen
+import com.example.bmis.ui.screens.profile.ProfileScreen
 import com.example.bmis.ui.screens.LuongSuaChua.ChiTietDichVuSuaChuaDangKy.ChiTietDichVuSuaChuaScreen
 import com.example.bmis.ui.screens.LuongSuaChua.DangKyDichVu.DangKyDichVuScreen
 import com.example.bmis.ui.screens.LuongSuaChua.DichVuSuaChua.DichVuSuaChuaScreen
 import com.example.bmis.ui.screens.LuongSuaChua.ThongTinChiTietDangKy.ThongTinChiTietScreen
 import com.example.bmis.ui.screens.LuongSuaChua.ThongTinDichVu.ThongTinDichVuScreen
 import com.example.bmis.ui.screens.ThongTinDangKy.RegistrationDetailScreen
-import com.example.bmis.ui.screens.services.StatusType
 
 @Composable
 fun AppNavigation() {
@@ -143,7 +146,8 @@ fun AppNavigation() {
                         onServicesClick = {
                             navController.navigate("services")
                         },
-                        onRepairClick = {navController.navigate("repair_services")}
+                        onRepairClick = {navController.navigate("repair_services")},
+                        onFeedbackClick = {navController.navigate("feedback_list")}
                     )
                 }
 
@@ -318,6 +322,40 @@ fun AppNavigation() {
                     )
                 }
 
+                composable("feedback_list") {
+                    DanhSachYKienScreen(
+                        onBackClick = { navController.popBackStack() },
+                        onAddClick = { navController.navigate("create_feedback") },
+                        onItemClick = { feedback ->
+                            navController.navigate("feedback_detail/${feedback.id}")
+                        }
+                    )
+                }
+
+                composable("feedback_detail/{feedbackId}") {
+                    ChiTietYKienScreen(
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+
+                composable("create_feedback") {
+                    TaoYKienMoiScreen(
+                        onBackClick = { navController.popBackStack() },
+                        onSuccess = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+
+                composable("profile") {
+                    ProfileScreen(
+                        onLogout = {
+                            navController.navigate("login") {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    )
+                }
             }
         }
     }

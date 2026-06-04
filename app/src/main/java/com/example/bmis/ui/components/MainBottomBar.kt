@@ -31,15 +31,15 @@ fun MainBottomBar(navController: NavHostController, currentRoute: String?) {
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
-//                    if (!isSelected) {
-//                        navController.navigate(item.route) {
-//                            popUpTo(navController.graph.startDestinationId) {
-//                                saveState = true
-//                            }
-//                            launchSingleTop = true
-//                            restoreState = true
-//                        }
-//                    }
+                    if (!isSelected) {
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                 },
                 icon = { Icon(item.icon, contentDescription = item.title) },
                 label = { Text(item.title) },
